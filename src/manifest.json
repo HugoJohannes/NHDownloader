@@ -1,0 +1,17 @@
+{
+  "name": "NHDownloader",
+  "version": "0.1.0",
+  "description": "NHentai downloader using Manifest v3.",
+  "permissions": ["storage", "tabs", "downloads"],
+  "host_permissions": ["https://*.nhentai.net/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.nhentai.net/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "manifest_version": 3
+}
