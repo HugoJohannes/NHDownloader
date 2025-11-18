@@ -18,7 +18,7 @@ export default [
         2,
         { offsetTernaryExpressions: true, SwitchCase: 1 },
       ],
-      '@stylistic/linebreak-style': ['error', 'unix'],
+      '@stylistic/linebreak-style': ['error', 'windows'],
       '@stylistic/quotes': ['error', 'single'],
       '@stylistic/semi': ['error', 'always'],
       'no-console': ['warn'],

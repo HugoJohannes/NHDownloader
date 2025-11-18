@@ -13,5 +13,14 @@
       "js": ["content.js"]
     }
   ],
+  "action": {
+    "default_icon": {
+      "16": "assets/command.svg",
+      "24": "assets/command.svg",
+      "32": "assets/command.svg"
+    },
+    "default_title": "NHDownloader",
+    "default_popup": "popup.html"
+  },
   "manifest_version": 3
 }

@@ -51,7 +51,6 @@ module.exports = (env, argv) => {
               options: {
                 sassOptions: {
                   silenceDeprecations: [
-                    'mixed-decls',
                     'color-functions',
                     'global-builtin',
                     'import',
@@ -70,6 +69,10 @@ module.exports = (env, argv) => {
           {
             from: path.resolve(__dirname, './src/manifest.json'),
             to: 'manifest.json',
+          },
+          {
+            from: path.resolve(__dirname, './src/assets'),
+            to: 'assets',
           },
         ],
       }),

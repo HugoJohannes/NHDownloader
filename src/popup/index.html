@@ -5,5 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NHDownloader</title>
   </head>
-  <body></body>
+  <body>
+    <main class="main-container py-2">
+      <div class="container">
+        <div class="row">
+          <div class="col">
+            <h1 class="h6 text-center">NHDownloader</h1>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <form>
+              <div class="mb-3">
+                <label for="title" class="form-label">Title</label>
+                <input type="text" class="form-control" id="title" />
+              </div>
+
+              <div class="mb-3 form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  id="includeCode"
+                />
+                <label class="form-check-label" for="includeCode">
+                  Include doujin code
+                </label>
+              </div>
+
+              <button type="submit" class="btn btn-primary">Download</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
 </html>
