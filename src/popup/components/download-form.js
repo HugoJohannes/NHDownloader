@@ -1,6 +1,6 @@
 import { createElement as cel } from 'Utilities/index.js';
 
-function downloadForm() {
+function downloadForm(data = {}, handleFormSubmit) {
   const mainContainer = document.querySelector('.main-container');
 
   const element = cel(
@@ -23,7 +23,7 @@ function downloadForm() {
         { className: 'col' },
         cel(
           'form',
-          {},
+          { onSubmit: handleFormSubmit },
           cel(
             'div',
             { className: 'mb-3' },
@@ -32,6 +32,8 @@ function downloadForm() {
               type: 'text',
               className: 'form-control',
               id: 'title',
+              name: 'title',
+              value: data.title || '',
             }),
           ),
           cel(
@@ -43,6 +45,8 @@ function downloadForm() {
               type: 'checkbox',
               className: 'form-check-input',
               id: 'includeCode',
+              name: 'includeCode',
+              onChange: (event) => handleIncludeCodeChange(event, data),
             }),
             cel(
               'label',
@@ -64,6 +68,15 @@ function downloadForm() {
   );
 
   mainContainer.appendChild(element);
+}
+
+function handleIncludeCodeChange(event, data) {
+  const includeCodeCheckbox = event.target;
+  const titleInput = document.getElementById('title');
+
+  titleInput.value = includeCodeCheckbox.checked
+    ? `${data.title} - (${data.doujinId})`
+    : data.title;
 }
 
 export default downloadForm;

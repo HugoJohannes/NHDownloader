@@ -87,7 +87,8 @@ module.exports = (env, argv) => {
         Background: path.resolve(__dirname, './src/background'),
         Content: path.resolve(__dirname, './src/content'),
         Popup: path.resolve(__dirname, './src/popup'),
-        Utilties: path.resolve(__dirname, './src/utils'),
+        Statics: path.resolve(__dirname, './src/statics'),
+        Utilities: path.resolve(__dirname, './src/utils'),
       },
     },
   };
