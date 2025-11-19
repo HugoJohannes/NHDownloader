@@ -15,21 +15,34 @@ async function start() {
 async function getDoujinMetadata() {
   const activeTab = await getCurrentTab();
 
-  const response = await chrome.tabs.sendMessage(activeTab.id, {
+  const payload = {
     type: eventTypes.GET_DOUJIN_METADATA,
-  });
+  };
+  const response = await chrome.tabs.sendMessage(activeTab.id, payload);
 
   return response;
 }
 
-function handleFormSubmit(event) {
+async function handleFormSubmit(event) {
   event.preventDefault();
+
+  const activeTab = await getCurrentTab();
 
   const formData = new FormData(this);
   const data = Object.fromEntries(formData.entries());
 
-  data.includeCode = formData.get('includeCode') === 'on';
-  console.log('🚀 ~ handleFormSubmit ~ data:', data);
+  // data.includeCode = formData.get('includeCode') === 'on';
+  // console.log('🚀 ~ handleFormSubmit ~ data:', data);
+
+  const payload = {
+    type: eventTypes.START_IMAGE_SCRAP,
+    data: {
+      title: data.title,
+    },
+  };
+
+  const imageURLs = await chrome.tabs.sendMessage(activeTab.id, payload);
+  console.log('🚀 ~ handleFormSubmit ~ imageURLs:', imageURLs);
 }
 
 ready(start);
