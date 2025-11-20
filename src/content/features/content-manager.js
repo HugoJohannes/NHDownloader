@@ -16,14 +16,40 @@ class ContentManager {
       const { type } = message;
 
       switch (type) {
-        case eventTypes.GET_DOUJIN_METADATA:
+        case eventTypes.GET_DOUJIN_METADATA: {
           console.log('Getting doujin title');
           sendResponse(this.getDoujinMetadata());
           break;
+        }
 
-        case eventTypes.START_IMAGE_SCRAP:
-          sendResponse(this.getImageURLs());
-          break;
+        case eventTypes.START_IMAGE_SCRAP: {
+          const {
+            data: { title },
+          } = message;
+          const imageURLs = this.getImageURLs();
+          const payload = {
+            type: eventTypes.START_IMAGE_DOWNLOAD,
+            data: {
+              title,
+              imageURLs,
+            },
+          };
+
+          chrome.runtime.sendMessage(payload).then((response) => {
+            if (response.status === 'ok') {
+              const payload = {
+                status: 'ok',
+                data: {
+                  imageURLs,
+                },
+              };
+
+              sendResponse(payload);
+            }
+          });
+
+          return true;
+        }
 
         default:
           break;
@@ -64,9 +90,9 @@ class ContentManager {
     const pageCount = thumbnails.length;
 
     // Get image extension.
-    const sampleImageURL = thumbnails[0].querySelector('img').src;
+    const sampleImageURL = thumbnails[0].querySelector('img').dataset.src;
     const thumbnailURLPattern =
-      /https:\/\/t(\d)\.nhentai\.net\/galleries\/(\d*)\/.*(\.\w*)/;
+      /\/\/t(\d)\.nhentai\.net\/galleries\/(\d*)\/.*(\.\w*)$/;
     const urlMatch = sampleImageURL.match(thumbnailURLPattern);
     const serverNumber = urlMatch[1];
     const galleryId = urlMatch[2];
