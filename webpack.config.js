@@ -14,6 +14,7 @@ module.exports = (env, argv) => {
       background: './src/background/index.js',
       content: './src/content/index.js',
       popup: './src/popup/index.js',
+      offscreen: './src/offscreen/index.js',
     },
     output: {
       path: path.resolve(__dirname, 'dist'),
@@ -79,7 +80,12 @@ module.exports = (env, argv) => {
       new HtmlWebpackPlugin({
         filename: 'popup.html',
         template: path.resolve(__dirname, './src/popup/index.html'),
-        excludeChunks: ['background', 'content'],
+        excludeChunks: ['background', 'content', 'offscreen'],
+      }),
+      new HtmlWebpackPlugin({
+        filename: 'offscreen.html',
+        template: path.resolve(__dirname, './src/offscreen/index.html'),
+        excludeChunks: ['background', 'content', 'popup'],
       }),
     ],
     resolve: {

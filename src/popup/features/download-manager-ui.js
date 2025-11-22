@@ -1,7 +1,7 @@
 /* globals chrome */
 
 import { eventTypes } from 'Statics/index.js';
-import { ready, getCurrentTab } from 'Utilities/index.js';
+import { getCurrentTab } from 'Utilities/index.js';
 import renderDownloadForm from '../components/download-form.js';
 
 class DownloadManagerUI {
@@ -9,8 +9,7 @@ class DownloadManagerUI {
     this.currentProgress = 0;
     this.downloadStatus = 'idle'; // 'idle', 'downloading', 'zipping', 'completed'
     this.fileAmount = 0;
-
-    // this.init = this.init.bind(this);
+    this.pollInterval = 0;
   }
 
   async init() {
