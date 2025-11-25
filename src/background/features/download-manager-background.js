@@ -5,6 +5,7 @@ import JSZip from 'jszip';
 import mime from 'mime/lite';
 
 import { eventTypes } from 'Statics/index.js';
+import { promiseResolver } from 'Utilities/index.js';
 
 class DownloadManagerBackground {
   constructor() {
@@ -19,13 +20,14 @@ class DownloadManagerBackground {
 
       switch (type) {
         case eventTypes.START_IMAGE_DOWNLOAD: {
-          const { title, imageURLs } = message.data;
+          const { imageURLs, title, doujinId } = message.data;
 
           console.log('Starting image downloads...');
           console.log('Background START_IMAGE_DOWNLOAD payload:', message.data);
 
-          this.downloadAndZip(imageURLs, title);
+          this.downloadAndZip(imageURLs, title, doujinId);
           sendResponse({ status: 'ok' });
+
           return true;
         }
 
@@ -35,7 +37,7 @@ class DownloadManagerBackground {
     });
   }
 
-  async downloadAndZip(imageURLs, title) {
+  async downloadAndZip(imageURLs, title, doujinId) {
     /* 
       1. Download all images.
       2. Receives an array of blobs.
@@ -48,22 +50,91 @@ class DownloadManagerBackground {
 
     // await this.setupOffscreenDocument('/offscreen.html');
 
+    // Sanitize title from invalid file name characters.
+    // Title base pattern: "${title} - (${doujinId})"
+    // Maximum 100 characters, always.
+    const titleMaxLength = doujinId !== '' ? 100 - (doujinId.length + 5) : 100;
+    const safeTitle = this.sanitizeTitle(title, titleMaxLength);
+    const finalTitle =
+      doujinId !== '' ? `${safeTitle} - (${doujinId})` : safeTitle;
+
     // Download all images.
+    const imageBlobs = await this.downloadImages(imageURLs);
+
+    // Zip image blobs.
+    const zipBlob = await this.generateZipAndBlob(imageBlobs, finalTitle);
+
+    const dataUrl = await this.blobToDataURL(zipBlob);
+
+    const [downloadId, downloadError] = await promiseResolver(
+      chrome.downloads.download({
+        url: dataUrl,
+        filename: `${finalTitle}.zip`,
+      }),
+    );
+
+    if (downloadError) {
+      console.error('Chrome download error.', downloadError);
+    }
+
+    // console.log('Download started with ID:', downloadId);
+
+    // // Check the download state
+    // const [download] = await chrome.downloads.search({ id: downloadId });
+    // console.log('Download info:', download);
+    // console.log('Actual filename:', download.filename);
+
+    /* ===================================================================== */
+  }
+
+  sanitizeTitle(title, maxLength = 100) {
+    const defaultTitle = 'downloaded_images';
+
+    if (!title || typeof title !== 'string') {
+      return defaultTitle;
+    }
+
+    let safeTitle = title
+      .replace(/[\\/:*?"<>|]/g, '_')
+      .replace(/\//g, '_')
+      .replace(/\.\./g, '')
+      .replace(/^\.+/, '')
+      .trim()
+      .replace(/\s+/g, ' ')
+      .substring(0, maxLength)
+      .trim();
+
+    if (!safeTitle || safeTitle === '.' || safeTitle === '..') {
+      return defaultTitle;
+    }
+
+    safeTitle = safeTitle.replace(/[.\s]+$/, '');
+
+    return safeTitle || defaultTitle;
+  }
+
+  async downloadImages(imageURLs) {
     const imageBlobs = [];
 
     for (let i = 0; i < imageURLs.length; i += 1) {
       const url = imageURLs[i];
 
-      try {
-        const response = await axios.get(url, { responseType: 'blob' });
+      const [result, imageDownloadError] = await promiseResolver(
+        axios.get(url, { responseType: 'blob' }),
+      );
 
-        imageBlobs.push(response.data);
-      } catch (error) {
-        console.error('Download error:', error);
+      if (imageDownloadError) {
+        console.error('Image download error:', imageDownloadError);
+
+        return undefined;
       }
-    }
 
-    // Zip image blobs.
+      imageBlobs.push(result.data);
+    }
+    return imageBlobs;
+  }
+
+  async generateZipAndBlob(imageBlobs, title) {
     const zip = new JSZip();
 
     const folder = zip.folder(title);
@@ -77,22 +148,7 @@ class DownloadManagerBackground {
 
     const zipBlob = await zip.generateAsync({ type: 'blob' });
 
-    const dataUrl = await this.blobToDataURL(zipBlob);
-
-    const downloadId = await chrome.downloads.download({
-      url: dataUrl,
-      filename: `${title}.zip`,
-      saveAs: true,
-    });
-
-    // console.log('Download started with ID:', downloadId);
-
-    // // Check the download state
-    // const [download] = await chrome.downloads.search({ id: downloadId });
-    // console.log('Download info:', download);
-    // console.log('Actual filename:', download.filename);
-
-    /* ===================================================================== */
+    return zipBlob;
   }
 
   async setupOffscreenDocument(path) {

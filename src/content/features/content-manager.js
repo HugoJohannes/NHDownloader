@@ -24,7 +24,7 @@ class ContentManager {
 
         case eventTypes.START_IMAGE_SCRAP: {
           const {
-            data: { title },
+            data: { title, includeDoujinId },
           } = message;
           const imageURLs = this.getImageURLs();
           const payload = {
@@ -32,6 +32,7 @@ class ContentManager {
             data: {
               title,
               imageURLs,
+              doujinId: includeDoujinId ? this.doujinId : '',
             },
           };
 

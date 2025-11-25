@@ -41,6 +41,7 @@ class DownloadManagerUI {
       type: eventTypes.START_IMAGE_SCRAP,
       data: {
         title: data.title,
+        includeDoujinId: data.includeDoujinId === 'on',
       },
     };
 

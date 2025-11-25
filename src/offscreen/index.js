@@ -9,19 +9,19 @@ import { eventTypes } from 'Statics/index.js';
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const { type } = message;
 
-      switch (type) {
-        case eventTypes.CREATE_OBJECT_URL_FOR_BLOB: {
-          console.log('Create object URL for blob');
-          console.log('Message:', message);
-          console.log('Received:', message.zipBlob);
-          console.log('Type:', message.zipBlob.constructor.name);
+      // switch (type) {
+      //   case eventTypes.CREATE_OBJECT_URL_FOR_BLOB: {
+      //     console.log('Create object URL for blob');
+      //     console.log('Message:', message);
+      //     console.log('Received:', message.zipBlob);
+      //     console.log('Type:', message.zipBlob.constructor.name);
 
-          break;
-        }
+      //     break;
+      //   }
 
-        default:
-          break;
-      }
+      //   default:
+      //     break;
+      // }
     });
   }
 

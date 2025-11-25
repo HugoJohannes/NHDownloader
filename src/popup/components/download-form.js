@@ -44,17 +44,16 @@ function downloadForm(data = {}, handleFormSubmit) {
             cel('input', {
               type: 'checkbox',
               className: 'form-check-input',
-              id: 'includeCode',
-              name: 'includeCode',
-              onChange: (event) => handleIncludeCodeChange(event, data),
+              id: 'includeDoujinId',
+              name: 'includeDoujinId',
             }),
             cel(
               'label',
               {
                 className: 'form-check-label',
-                for: 'includeCode',
+                for: 'includeDoujinId',
               },
-              'Include doujin code',
+              'Include doujin ID',
             ),
           ),
           cel(
@@ -70,13 +69,13 @@ function downloadForm(data = {}, handleFormSubmit) {
   mainContainer.appendChild(element);
 }
 
-function handleIncludeCodeChange(event, data) {
-  const includeCodeCheckbox = event.target;
-  const titleInput = document.getElementById('title');
+// function handleIncludeCodeChange(event, data) {
+//   const includeCodeCheckbox = event.target;
+//   const titleInput = document.getElementById('title');
 
-  titleInput.value = includeCodeCheckbox.checked
-    ? `${data.title} - (${data.doujinId})`
-    : data.title;
-}
+//   titleInput.value = includeCodeCheckbox.checked
+//     ? `${data.title} - (${data.doujinId})`
+//     : data.title;
+// }
 
 export default downloadForm;
