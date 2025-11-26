@@ -9,9 +9,12 @@ import { promiseResolver } from 'Utilities/index.js';
 
 class DownloadManagerBackground {
   constructor() {
-    this.currentProgress = 0;
-    this.downloadStatus = 'idle'; // 'idle', 'downloading', 'zipping', 'completed'
+    this.currentProgress = 0; // Progress in percentage.
+    this.downloadedFileAmount = 0;
     this.fileAmount = 0;
+    this.downloadStatus = 'idle'; // 'idle', 'downloading', 'zipping', 'completed'
+    this.intervalId = 0;
+    this.intervalDelay = 1000;
   }
 
   init() {
@@ -25,7 +28,12 @@ class DownloadManagerBackground {
           console.log('Starting image downloads...');
           console.log('Background START_IMAGE_DOWNLOAD payload:', message.data);
 
+          this.fileAmount = imageURLs.length;
+
           this.downloadAndZip(imageURLs, title, doujinId);
+
+          this.startDownloadProgressTracking();
+
           sendResponse({ status: 'ok' });
 
           return true;
@@ -77,12 +85,7 @@ class DownloadManagerBackground {
       console.error('Chrome download error.', downloadError);
     }
 
-    // console.log('Download started with ID:', downloadId);
-
-    // // Check the download state
-    // const [download] = await chrome.downloads.search({ id: downloadId });
-    // console.log('Download info:', download);
-    // console.log('Actual filename:', download.filename);
+    this.resetProgress();
 
     /* ===================================================================== */
   }
@@ -125,12 +128,17 @@ class DownloadManagerBackground {
 
       if (imageDownloadError) {
         console.error('Image download error:', imageDownloadError);
+        this.resetProgress();
 
         return undefined;
       }
 
       imageBlobs.push(result.data);
+
+      this.downloadedFileAmount = this.downloadedFileAmount + 1;
+      this.calculateProgress();
     }
+
     return imageBlobs;
   }
 
@@ -174,6 +182,42 @@ class DownloadManagerBackground {
       reader.onload = () => resolve(reader.result);
       reader.readAsDataURL(blob);
     });
+  }
+
+  startDownloadProgressTracking() {
+    this.intervalId = setInterval(() => {
+      this.updateStore();
+    }, this.intervalDelay);
+
+    this.downloadStatus = 'downloading';
+  }
+
+  calculateProgress() {
+    const currentProgress =
+      Math.floor((this.downloadedFileAmount / this.fileAmount) * 100 * 100) /
+      100;
+
+    this.currentProgress = currentProgress;
+  }
+
+  async updateStore() {
+    const newData = {
+      currentProgress: this.currentProgress,
+      fileAmount: this.fileAmount,
+      downloadedFileAmount: this.downloadedFileAmount,
+      downloadStatus: this.downloadStatus,
+    };
+
+    console.log('Store is updating:', newData);
+  }
+
+  resetProgress() {
+    this.currentProgress = 0;
+    this.downloadedFileAmount = 0;
+    this.fileAmount = 0;
+    this.downloadStatus = 'idle';
+
+    clearInterval(this.intervalId);
   }
 }
 

@@ -88,23 +88,24 @@ class ContentManager {
     console.log('Getting image URLs...');
 
     const thumbnails = document.querySelectorAll('.thumb-container');
-    const pageCount = thumbnails.length;
-
-    // Get image extension.
-    const sampleImageURL = thumbnails[0].querySelector('img').dataset.src;
-    const thumbnailURLPattern =
-      /\/\/t(\d)\.nhentai\.net\/galleries\/(\d*)\/.*(\.\w*)$/;
-    const urlMatch = sampleImageURL.match(thumbnailURLPattern);
-    const serverNumber = urlMatch[1];
-    const galleryId = urlMatch[2];
-    const imageExt = urlMatch[3];
 
     const imageURLs = [];
-    for (let page = 1; page <= pageCount; page += 1) {
-      const url = `https://i${serverNumber}.nhentai.net/galleries/${galleryId}/${page}${imageExt}`;
+
+    thumbnails.forEach((thumb, index) => {
+      // Get image extension.
+      const sampleImageURL = thumb.querySelector('img').dataset.src;
+      const pageNumber = index + 1;
+      const thumbnailURLPattern =
+        /\/\/t(\d)\.nhentai\.net\/galleries\/(\d*)\/.*(\.\w*)$/;
+      const urlMatch = sampleImageURL.match(thumbnailURLPattern);
+      const serverNumber = urlMatch[1];
+      const galleryId = urlMatch[2];
+      const imageExt = urlMatch[3];
+
+      const url = `https://i${serverNumber}.nhentai.net/galleries/${galleryId}/${pageNumber}${imageExt}`;
 
       imageURLs.push(url);
-    }
+    });
 
     return imageURLs;
   }
