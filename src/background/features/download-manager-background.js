@@ -85,7 +85,14 @@ class DownloadManagerBackground {
       console.error('Chrome download error.', downloadError);
     }
 
+    this.downloadStatus = 'completed';
+    await this.updateStore();
+
     this.resetProgress();
+    // Wait for popup poll to finish reading the "completed" state, then reset the storage.
+    setTimeout(() => {
+      this.updateStore();
+    }, 2000);
 
     /* ===================================================================== */
   }
@@ -208,7 +215,7 @@ class DownloadManagerBackground {
       downloadStatus: this.downloadStatus,
     };
 
-    console.log('Store is updating:', newData);
+    await chrome.storage.local.set(newData);
   }
 
   resetProgress() {

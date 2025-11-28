@@ -91,16 +91,15 @@ class ContentManager {
 
     const imageURLs = [];
 
-    thumbnails.forEach((thumb, index) => {
-      // Get image extension.
+    thumbnails.forEach((thumb) => {
       const sampleImageURL = thumb.querySelector('img').dataset.src;
-      const pageNumber = index + 1;
       const thumbnailURLPattern =
-        /\/\/t(\d)\.nhentai\.net\/galleries\/(\d*)\/.*(\.\w*)$/;
+        /\/\/t(\d)\.nhentai\.net\/galleries\/(\d*)\/(\d+)t(\.\w*)/;
       const urlMatch = sampleImageURL.match(thumbnailURLPattern);
       const serverNumber = urlMatch[1];
       const galleryId = urlMatch[2];
-      const imageExt = urlMatch[3];
+      const pageNumber = urlMatch[3];
+      const imageExt = urlMatch[4];
 
       const url = `https://i${serverNumber}.nhentai.net/galleries/${galleryId}/${pageNumber}${imageExt}`;
 

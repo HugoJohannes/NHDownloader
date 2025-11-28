@@ -3,19 +3,54 @@
 import { eventTypes } from 'Statics/index.js';
 import { getCurrentTab } from 'Utilities/index.js';
 import renderDownloadForm from '../components/download-form.js';
+import renderDownloadProgress from '../components/download-progress.js';
+import renderDownloadCompleted from '../components/download-completed.js';
 
 class DownloadManagerUI {
   constructor() {
     this.currentProgress = 0;
-    this.downloadStatus = 'idle'; // 'idle', 'downloading', 'zipping', 'completed'
+    this.downloadedFileAmount = 0;
     this.fileAmount = 0;
-    this.pollInterval = 0;
+    this.downloadStatus = 'idle'; // 'idle', 'downloading', 'zipping', 'completed'
+    this.intervalId = 0;
+    this.intervalDelay = 1000;
+    this.doujinTitle = '';
+    this.doujinId = '';
+
+    this.handleFormSubmit = this.handleFormSubmit.bind(this);
   }
 
   async init() {
     const data = await this.getDoujinMetadata();
 
-    renderDownloadForm(data, this.handleFormSubmit);
+    this.renderUI({ data, handleFormSubmit: this.handleFormSubmit });
+  }
+
+  renderUI(props) {
+    const mainContainer = document.querySelector('.main-container');
+
+    // Empty main container.
+    mainContainer.innerHTML = '';
+
+    switch (this.downloadStatus) {
+      case 'idle': {
+        renderDownloadForm(props);
+        break;
+      }
+
+      case 'downloading': {
+        renderDownloadProgress(props);
+        break;
+      }
+
+      case 'completed': {
+        renderDownloadCompleted(props);
+        break;
+      }
+
+      default:
+        break;
+    }
   }
 
   async getDoujinMetadata() {
@@ -26,6 +61,9 @@ class DownloadManagerUI {
     };
     const response = await chrome.tabs.sendMessage(activeTab.id, payload);
 
+    this.doujinTitle = response.title;
+    this.doujinId = response.doujinId;
+
     return response;
   }
 
@@ -34,7 +72,7 @@ class DownloadManagerUI {
 
     const activeTab = await getCurrentTab();
 
-    const formData = new FormData(this);
+    const formData = new FormData(event.target);
     const data = Object.fromEntries(formData.entries());
 
     const payload = {
@@ -46,10 +84,73 @@ class DownloadManagerUI {
     };
 
     const response = await chrome.tabs.sendMessage(activeTab.id, payload);
-    console.log(
-      '🚀 ~ DownloadManagerUI ~ handleFormSubmit ~ imageURLs:',
-      response?.data?.imageURLs,
-    );
+
+    if (response.status === 'ok') {
+      this.startDownloadProgressTracking();
+    }
+  }
+
+  handlePopupClose() {
+    window.close();
+  }
+
+  startDownloadProgressTracking() {
+    this.intervalId = setInterval(() => {
+      chrome.storage.local
+        .get([
+          'currentProgress',
+          'downloadedFileAmount',
+          'fileAmount',
+          'downloadStatus',
+        ])
+        .then((result) => {
+          // If even one of these keys doesn't exist in the storage, then none of them are.
+          if (result.currentProgress === undefined) {
+            console.log('There is no download progress data in the storage.');
+
+            return undefined;
+          }
+
+          // Apply the store state into instance state.
+          this.currentProgress = result.currentProgress;
+          this.downloadedFileAmount = result.downloadedFileAmount;
+          this.fileAmount = result.fileAmount;
+          this.downloadStatus = result.downloadStatus;
+
+          if (this.downloadStatus === 'downloading') {
+            // Render download progress page.
+
+            this.renderUI({ data: { currentProgress: this.currentProgress } });
+          }
+
+          if (this.downloadStatus === 'zipping') {
+            // Render zipping progress page.
+          }
+
+          if (this.downloadStatus === 'completed') {
+            // Render completed download page and reset instance state.
+
+            this.renderUI({ handleClose: this.handlePopupClose });
+            this.resetProgress();
+          }
+
+          // this.renderUI({
+          //   data: { title: this.doujinTitle },
+          //   handleFormSubmit: this.handleFormSubmit,
+          // });
+
+          return undefined;
+        });
+    }, this.intervalDelay);
+  }
+
+  resetProgress() {
+    this.currentProgress = 0;
+    this.downloadFileAmount = 0;
+    this.fileAmount = 0;
+    this.downloadStatus = 'idle';
+
+    clearInterval(this.intervalId);
   }
 }
 

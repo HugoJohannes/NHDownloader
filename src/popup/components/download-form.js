@@ -1,6 +1,6 @@
 import { createElement as cel } from 'Utilities/index.js';
 
-function downloadForm(data = {}, handleFormSubmit) {
+function downloadForm({ data = {}, handleFormSubmit }) {
   const mainContainer = document.querySelector('.main-container');
 
   const element = cel(
