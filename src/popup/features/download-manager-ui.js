@@ -21,9 +21,56 @@ class DownloadManagerUI {
   }
 
   async init() {
+    // Initiate state according to current storage state.
+    const isStateInitiated = await this.initiateState();
+
+    if (isStateInitiated) return undefined;
+
     const data = await this.getDoujinMetadata();
 
     this.renderUI({ data, handleFormSubmit: this.handleFormSubmit });
+
+    return undefined;
+  }
+
+  async initiateState() {
+    const result = await chrome.storage.local.get([
+      'currentProgress',
+      'downloadedFileAmount',
+      'fileAmount',
+      'downloadStatus',
+    ]);
+
+    if (
+      result.downloadStatus &&
+      ['downloading', 'completed'].includes(result.downloadStatus)
+    ) {
+      this.currentProgress = result.currentProgress;
+      this.downloadedFileAmount = result.downloadedFileAmount;
+      this.fileAmount = result.fileAmount;
+      this.downloadStatus = result.downloadStatus;
+
+      switch (result.downloadStatus) {
+        case 'downloading': {
+          this.renderUI({ data: { currentProgress: result.currentProgress } });
+          this.startDownloadProgressTracking();
+
+          return true;
+        }
+
+        case 'completed': {
+          this.renderUI({ handleClose: this.handlePopupClose });
+          this.resetProgress();
+
+          return true;
+        }
+
+        default:
+          return false;
+      }
+    }
+
+    return false;
   }
 
   renderUI(props) {
@@ -129,15 +176,9 @@ class DownloadManagerUI {
 
           if (this.downloadStatus === 'completed') {
             // Render completed download page and reset instance state.
-
             this.renderUI({ handleClose: this.handlePopupClose });
             this.resetProgress();
           }
-
-          // this.renderUI({
-          //   data: { title: this.doujinTitle },
-          //   handleFormSubmit: this.handleFormSubmit,
-          // });
 
           return undefined;
         });
@@ -146,7 +187,7 @@ class DownloadManagerUI {
 
   resetProgress() {
     this.currentProgress = 0;
-    this.downloadFileAmount = 0;
+    this.downloadedFileAmount = 0;
     this.fileAmount = 0;
     this.downloadStatus = 'idle';
 
