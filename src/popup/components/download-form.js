@@ -69,13 +69,4 @@ function downloadForm({ data = {}, handleFormSubmit }) {
   mainContainer.appendChild(element);
 }
 
-// function handleIncludeCodeChange(event, data) {
-//   const includeCodeCheckbox = event.target;
-//   const titleInput = document.getElementById('title');
-
-//   titleInput.value = includeCodeCheckbox.checked
-//     ? `${data.title} - (${data.doujinId})`
-//     : data.title;
-// }
-
 export default downloadForm;

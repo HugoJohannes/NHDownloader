@@ -25,9 +25,6 @@ class DownloadManagerBackground {
         case eventTypes.START_IMAGE_DOWNLOAD: {
           const { imageURLs, title, doujinId } = message.data;
 
-          console.log('Starting image downloads...');
-          console.log('Background START_IMAGE_DOWNLOAD payload:', message.data);
-
           this.fileAmount = imageURLs.length;
 
           this.downloadAndZip(imageURLs, title, doujinId);
@@ -41,6 +38,28 @@ class DownloadManagerBackground {
 
         default:
           break;
+      }
+    });
+
+    chrome.tabs.onActivated.addListener(async ({ tabId }) => {
+      const activeTab = await chrome.tabs.get(tabId);
+
+      if (activeTab.url.includes('nhentai.net')) {
+        chrome.action.setIcon({
+          path: {
+            16: 'assets/Icon.png',
+            24: 'assets/Icon.png',
+            32: 'assets/Icon.png',
+          },
+        });
+      } else {
+        chrome.action.setIcon({
+          path: {
+            16: 'assets/Icon-grey.png',
+            24: 'assets/Icon-grey.png',
+            32: 'assets/Icon-grey.png',
+          },
+        });
       }
     });
   }
@@ -93,8 +112,6 @@ class DownloadManagerBackground {
     setTimeout(() => {
       this.updateStore();
     }, 2000);
-
-    /* ===================================================================== */
   }
 
   sanitizeTitle(title, maxLength = 100) {

@@ -5,6 +5,8 @@ import { getCurrentTab } from 'Utilities/index.js';
 import renderDownloadForm from '../components/download-form.js';
 import renderDownloadProgress from '../components/download-progress.js';
 import renderDownloadCompleted from '../components/download-completed.js';
+import renderNonNhentaiPage from '../components/non-nhentai-page.js';
+import renderNonDoujinPage from '../components/non-doujin-page.js';
 
 class DownloadManagerUI {
   constructor() {
@@ -21,6 +23,12 @@ class DownloadManagerUI {
   }
 
   async init() {
+    // Check if it's in an NHentai and its doujin pages, and render appropriate
+    // pages accordingly.
+    const isNhentaiPage = await this.checkNhentaiPage();
+
+    if (!isNhentaiPage) return undefined;
+
     // Initiate state according to current storage state.
     const isStateInitiated = await this.initiateState();
 
@@ -31,6 +39,22 @@ class DownloadManagerUI {
     this.renderUI({ data, handleFormSubmit: this.handleFormSubmit });
 
     return undefined;
+  }
+
+  async checkNhentaiPage() {
+    const activeTab = await getCurrentTab();
+
+    if (!activeTab.url?.includes('nhentai.net')) {
+      renderNonNhentaiPage();
+
+      return false;
+    } else if (!activeTab.url?.includes('nhentai.net/g')) {
+      renderNonDoujinPage();
+
+      return false;
+    }
+
+    return true;
   }
 
   async initiateState() {
