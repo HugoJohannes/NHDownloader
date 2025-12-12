@@ -1,3 +1,4 @@
 # NHDownloader
 
-Nhentai downloader using Manifest v3.
+Download your favorite NHentai doujinshis.
+
