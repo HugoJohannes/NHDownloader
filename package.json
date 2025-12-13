@@ -1,6 +1,6 @@
 {
   "name": "nhdownloader",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "NHentai downloader using Manifest v3.",
   "main": "index.js",
   "scripts": {
