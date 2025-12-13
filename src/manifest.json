@@ -1,0 +1,32 @@
+{
+  "name": "NHDownloader",
+  "version": "0.1.0",
+  "description": "NHentai downloader using Manifest v3.",
+  "permissions": ["storage", "tabs", "downloads", "offscreen"],
+  "host_permissions": ["https://*.nhentai.net/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.nhentai.net/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "matches": ["https://*.nhentai.net/*"],
+      "resources": ["content.js.map"]
+    }
+  ],
+  "action": {
+    "default_icon": {
+      "16": "assets/Icon.png",
+      "24": "assets/Icon.png",
+      "32": "assets/Icon.png"
+    },
+    "default_title": "NHDownloader",
+    "default_popup": "popup.html"
+  },
+  "manifest_version": 3
+}

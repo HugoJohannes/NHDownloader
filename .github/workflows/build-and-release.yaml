@@ -1,0 +1,46 @@
+name: Build and Release
+
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.1
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v6.1.0
+        with:
+          node-version: '24'
+
+      - name: Install and build
+        run: |
+          npm ci
+          npm run build
+      
+      - name: Package extension
+        run: node scripts/package-extension.js
+
+      - name: GH Release
+        uses: softprops/action-gh-release@v2.5.0
+        with:
+          files: |
+            dist/extension.zip
+            dist/extension-source.zip
+          body: |
+            ## 🚀 NHDownloader v${{ github.ref_name }}
+            
+            ### 📦 Installation
+            1. Download `extension.zip` below
+            2. Unzip the file
+            3. Go to `chrome://extensions/`
+            4. Enable "Developer mode"
+            5. Click "Load unpacked"
+            6. Select the unzipped folder
+            
+            ### 🔧 For Developers
+            Download `extension-source.zip` for the source code.
+          token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
