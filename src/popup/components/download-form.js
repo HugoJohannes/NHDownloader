@@ -46,6 +46,7 @@ function downloadForm({ data = {}, handleFormSubmit }) {
               className: 'form-check-input',
               id: 'includeDoujinId',
               name: 'includeDoujinId',
+              checked: true,
             }),
             cel(
               'label',

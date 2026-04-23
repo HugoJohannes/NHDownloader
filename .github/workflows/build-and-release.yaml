@@ -31,7 +31,7 @@ jobs:
             dist/extension.zip
             dist/extension-source.zip
           body: |
-            ## 🚀 NHDownloader v${{ github.ref_name }}
+            ## 🚀 NHDownloader ${{ github.ref_name }}
             
             ### 📦 Installation
             1. Download `extension.zip` below
