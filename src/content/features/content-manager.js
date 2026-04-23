@@ -92,7 +92,7 @@ class ContentManager {
     const imageURLs = [];
 
     thumbnails.forEach((thumb) => {
-      const sampleImageURL = thumb.querySelector('img').dataset.src;
+      const sampleImageURL = thumb.querySelector('img').src;
       const thumbnailURLPattern =
         /\/\/t(\d)\.nhentai\.net\/galleries\/(\d*)\/(\d+)t(\.\w*)/;
       const urlMatch = sampleImageURL.match(thumbnailURLPattern);
