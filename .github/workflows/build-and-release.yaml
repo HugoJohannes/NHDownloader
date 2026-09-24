@@ -22,7 +22,7 @@ jobs:
           node-version: '24'
           cache: 'pnpm'
 
-      - name: Install and build
+      - name: Install
         run: |
           pnpm install --frozen-lockfile
 
