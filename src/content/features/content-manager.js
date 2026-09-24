@@ -60,10 +60,11 @@ class ContentManager {
 
   getDoujinMetadata() {
     const titleElement = document.querySelector('h1.title');
-    const prefix = titleElement.querySelector('span.before');
-    const mainTitle = titleElement.querySelector('span.pretty');
-    const suffix = titleElement.querySelector('span.after');
-    const title = `${prefix.textContent}${mainTitle.textContent}${suffix.textContent}`;
+    const prefix = titleElement.querySelector('span.before')?.textContent || '';
+    const mainTitle =
+      titleElement.querySelector('span.pretty')?.textContent || '';
+    const suffix = titleElement.querySelector('span.after')?.textContent || '';
+    const title = `${prefix}${mainTitle}${suffix}`.trim();
 
     const galleryIdElement = document.getElementById('gallery_id');
     const doujinId = Array.from(galleryIdElement.childNodes)
